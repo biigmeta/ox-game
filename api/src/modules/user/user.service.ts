@@ -1,7 +1,7 @@
 import z from "zod";
 
-import { encryptPassword } from "~/src/utils/password";
-import { db } from "~/src/db/database";
+import { encryptPassword } from "~/utils/password";
+import { db } from "~/db/database";
 import { UsersRepository } from "../user/user.repository";
 
 export class UserService {

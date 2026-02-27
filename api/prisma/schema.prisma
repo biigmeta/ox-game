@@ -36,7 +36,7 @@ model Users {
   id              String            @id @default(uuid())
   email           String            @unique
   firstName       String
-  lastName        String
+  lastName        String?
   role            Role              @default(user)
   // --- Timestamps --- //
   createdAt       DateTime          @default(now())
@@ -44,6 +44,21 @@ model Users {
   deletedAt       DateTime?
   // --- Relations --- //
   authentications Authentications[]
+  histories       Histories[]
+}
+
+model Histories {
+  id        String    @id @default(uuid())
+  userId    String
+  player    Player
+  result    ScoreType
+  score     Int
+  // --- Timestamps --- //
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  // --- Relations --- //
+  user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum AuthProvider {
@@ -54,4 +69,16 @@ enum AuthProvider {
 enum Role {
   user
   admin
+}
+
+enum Player {
+  X
+  O
+}
+
+enum ScoreType {
+  win
+  lose
+  draw
+  extra
 }

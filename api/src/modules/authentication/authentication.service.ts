@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client";
 import z from "zod";
+import { db } from "~/db/database";
+import { comparePassword, encryptPassword } from "~/utils/password";
+import { UsersRepository } from "~/modules/user/user.repository";
+import { AuthenticationRepository } from "~/modules/authentication/authentication.repository";
 import {
   authLoginSchema,
   authRegisterSchema,
   authSocialLoginSchema,
 } from "./authentication.schema";
-import { encryptPassword } from "~/src/utils/password";
-import { AuthenticationRepository } from "./authentication.repository";
-import { db } from "~/src/db/database";
-import { UsersRepository } from "../user/user.repository";
+import { getAccessToken, getRefreshToken } from "~/utils/jwt";
 
 export class AuthenticationService {
   constructor(
@@ -17,52 +17,101 @@ export class AuthenticationService {
   ) {}
 
   async register(data: z.infer<typeof authRegisterSchema>) {
-    if (!data.acceptTermsAndConditions || !data.acceptPrivacyPolicy) {
-      throw new Error(
-        "You must accept the terms and conditions and privacy policy to register."
-      );
+    const existingUser = await this.userRepository.findByEmail(data.email);
+
+    if (existingUser) {
+      throw new Error("Email already exists");
     }
 
     return db.$transaction(async (tx) => {
-      let userId = "" as string;
-      const user = await this.userRepository.findFirst(
+      const user = await this.userRepository.create(
         {
-          where: { email: data.email },
+          data: {
+            email: data.email,
+            firstName: data.firstName,
+            lastName: data.lastName,
+          },
         },
         tx
       );
 
-      userId = user?.id || "";
-
       if (!user) {
-        const createUser = await this.userRepository.create(
-          {
-            data: {
-              email: data.email,
-              firstName: data.firstName,
-              lastName: data.lastName,
-            },
-          },
-          tx
-        );
-        userId = createUser.id;
+        throw new Error("User not found after creation");
       }
 
       const hashedPassword = encryptPassword(data.password);
 
-      await this.authenticationRepository.create({
-        data: {
-          provider: "email",
-          userId: userId,
-          password: hashedPassword,
-          email: data.email,
-          subject: data.email,
+      await this.authenticationRepository.create(
+        {
+          data: {
+            provider: "email",
+            password: hashedPassword,
+            email: data.email,
+            subject: data.email,
+            user: { connect: { id: user.id } },
+          },
         },
+        tx
+      );
+
+      const accessToken = getAccessToken({
+        id: user.id,
+        email: user.email,
+        role: user.role,
       });
+
+      const refreshToken = getRefreshToken({
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      });
+
+      return {
+        user,
+        accessToken,
+        refreshToken,
+      };
     });
   }
 
-  async login(data: z.infer<typeof authLoginSchema>) {}
+  async login(data: z.infer<typeof authLoginSchema>) {
+    const authentication =
+      await this.authenticationRepository.findFirstWithUser({
+        where: { email: data.email, provider: "email" },
+        include: { user: true },
+      });
+
+    if (!authentication) {
+      throw new Error("Invalid email or password");
+    }
+
+    const isPasswordValid = comparePassword(
+      data.password,
+      authentication.password!
+    );
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid email or password");
+    }
+
+    const accessToken = getAccessToken({
+      id: authentication.userId,
+      email: authentication.email,
+      role: authentication.user?.role,
+    });
+
+    const refreshToken = getRefreshToken({
+      id: authentication.userId,
+      email: authentication.email,
+      role: authentication.user?.role,
+    });
+
+    return {
+      user: authentication.user,
+      accessToken,
+      refreshToken,
+    };
+  }
 
   async continueWithSocial(data: z.infer<typeof authSocialLoginSchema>) {}
 

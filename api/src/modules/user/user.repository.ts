@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { DBClient, db } from "~/src/db/database";
+import { DBClient, db } from "~/db/database";
 
 export class UsersRepository {
   async create(args: Prisma.UsersCreateArgs, database: DBClient = db) {
@@ -16,6 +16,12 @@ export class UsersRepository {
 
   async findUnique(args: Prisma.UsersFindUniqueArgs, database: DBClient = db) {
     return database.users.findUnique(args);
+  }
+
+  async findByEmail(email: string, database: DBClient = db) {
+    return database.users.findFirst({
+      where: { email },
+    });
   }
 
   async update(args: Prisma.UsersUpdateArgs, database: DBClient = db) {

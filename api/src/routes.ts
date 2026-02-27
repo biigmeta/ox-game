@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 
 /* -------------------------------- location -------------------------------- */
-// import geographyRoutes from "~/modules/geography/geography.routes";
+import authenticationRoutes from "./modules/authentication/authentication.routes";
 // import provinceRoutes from "~/modules/province/province.routes";
 // import districtRoutes from "~/modules/district/district.routes";
 // import subdistrictRoutes from "~/modules/subdistrict/subdistrict.routes";
@@ -20,7 +20,7 @@ routes.get("/", (req: Request, res: Response) => {
   res.send(`Welcome to the ${process.env.APP_NAME || "API"}`);
 });
 
-// routes.use("/geographies", geographyRoutes);
+routes.use("/auth", authenticationRoutes);
 // routes.use("/provinces", provinceRoutes);
 // routes.use("/districts", districtRoutes);
 // routes.use("/subdistricts", subdistrictRoutes);
@@ -32,6 +32,5 @@ routes.get("/", (req: Request, res: Response) => {
 // routes.use("/lotto", lottoRoutes);
 // routes.use("/rewards", rewardRoutes);
 // routes.use("/winners", winnerRoutes);
-
 
 export default routes;

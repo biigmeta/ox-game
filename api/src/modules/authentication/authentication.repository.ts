@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { DBClient, db } from "~/src/db/database";
+import { DBClient, db } from "~/db/database";
 
 export class AuthenticationRepository {
   async create(
@@ -16,11 +16,21 @@ export class AuthenticationRepository {
     return database.authentications.findMany(args);
   }
 
-  async findFirst(
-    args: Prisma.AuthenticationsFindFirstArgs,
+  async findFirst<T extends Prisma.AuthenticationsFindFirstArgs>(
+    args: T,
     database: DBClient = db
   ) {
     return database.authentications.findFirst(args);
+  }
+
+  async findFirstWithUser<T extends Prisma.AuthenticationsFindFirstArgs>(
+    args: T,
+    database: DBClient = db
+  ) {
+    return database.authentications.findFirst({
+      ...args,
+      include: { user: true },
+    });
   }
 
   async findUnique(
@@ -30,11 +40,17 @@ export class AuthenticationRepository {
     return database.authentications.findUnique(args);
   }
 
-  async update(args: Prisma.AuthenticationsUpdateArgs, database: DBClient = db) {
+  async update(
+    args: Prisma.AuthenticationsUpdateArgs,
+    database: DBClient = db
+  ) {
     return database.authentications.update(args);
   }
 
-  async delete(args: Prisma.AuthenticationsDeleteArgs, database: DBClient = db) {
+  async delete(
+    args: Prisma.AuthenticationsDeleteArgs,
+    database: DBClient = db
+  ) {
     return database.authentications.delete(args);
   }
 

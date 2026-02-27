@@ -1,28 +1,47 @@
 import type { NextFunction, Request, Response } from "express";
-import { ok } from "~/src/utils/http";
-import { AuthenticationService } from "./authentication.service";
+
+import { AuthenticationService } from "~/modules/authentication/authentication.service";
+import { ok } from "~/utils/http";
 
 export class AuthenticationController {
   private authenticationService = new AuthenticationService();
-  async register(req: Request, res: Response, next: NextFunction) {
+
+  register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.authenticationService.register(req.body);
+      const body = req.body;
+
+      if (
+        body.acceptTermsAndConditions === false ||
+        body.acceptPrivacyPolicy === false ||
+        !body.acceptTermsAndConditions ||
+        !body.acceptPrivacyPolicy
+      ) {
+        throw new Error(
+          "You must accept the terms and conditions and privacy policy to register."
+        );
+      }
+
+      const data = await this.authenticationService.register(body);
       res.json(ok(data));
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  async login(req: Request, res: Response, next: NextFunction) {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.authenticationService.login(req.body);
       res.json(ok(data));
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  async continueWithSocial(req: Request, res: Response, next: NextFunction) {
+  continueWithSocial = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const data = await this.authenticationService.continueWithSocial(
         req.body
@@ -31,18 +50,18 @@ export class AuthenticationController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  async findAll(req: Request, res: Response, next: NextFunction) {
+  findAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.authenticationService.findAll(req.query);
       res.json(ok(data));
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  async findByUserId(req: Request, res: Response, next: NextFunction) {
+  findByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
       const data = await this.authenticationService.findByUserId(id as string);
@@ -50,9 +69,9 @@ export class AuthenticationController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  async delete(req: Request, res: Response, next: NextFunction) {
+  delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
       const permanent = req.query.permanent === "true";
@@ -63,5 +82,5 @@ export class AuthenticationController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 }

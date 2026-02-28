@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 
 /* -------------------------------- location -------------------------------- */
 import authenticationRoutes from "./modules/authentication/authentication.routes";
+import historyRoutes from "./modules/history/history.routes";
 // import provinceRoutes from "~/modules/province/province.routes";
 // import districtRoutes from "~/modules/district/district.routes";
 // import subdistrictRoutes from "~/modules/subdistrict/subdistrict.routes";
@@ -21,6 +22,7 @@ routes.get("/", (req: Request, res: Response) => {
 });
 
 routes.use("/auth", authenticationRoutes);
+routes.use("/histories", historyRoutes);
 // routes.use("/provinces", provinceRoutes);
 // routes.use("/districts", districtRoutes);
 // routes.use("/subdistricts", subdistrictRoutes);

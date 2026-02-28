@@ -1,8 +1,9 @@
 import type { NextFunction, Request, Response } from "express";
-
+import { AppError } from "~/middlewares/error_handler.middleware";
 import { AuthenticationService } from "~/modules/authentication/authentication.service";
 import { AuthProviderType } from "~/types/auth";
 import { ok } from "~/utils/http";
+
 
 export class AuthenticationController {
   private authenticationService = new AuthenticationService();
@@ -32,7 +33,7 @@ export class AuthenticationController {
     next: NextFunction
   ) => {
     const provider = req.params.provider;
-    
+
     try {
       const data = await this.authenticationService.continueWithSocial(
         provider as AuthProviderType,
@@ -57,6 +58,19 @@ export class AuthenticationController {
     try {
       const id = req.params.id;
       const data = await this.authenticationService.findByUserId(id as string);
+      res.json(ok(data));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  me = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req?.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
+      const data = await this.authenticationService.findByUserId(userId);
       res.json(ok(data));
     } catch (err) {
       next(err);

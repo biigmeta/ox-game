@@ -1,4 +1,5 @@
 "use client";
+import Loading from "@/components/general/Loading";
 import { useUserStore } from "@/stores/useUserStore";
 import Link from "next/link";
 
@@ -7,7 +8,7 @@ export default function Home() {
   const isHydrated = useUserStore((state) => state.isHydrated);
 
   if (!isHydrated) {
-    return <div>Loading</div>;
+    return <Loading />;
   }
 
   return (

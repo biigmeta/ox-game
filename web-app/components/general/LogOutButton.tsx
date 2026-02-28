@@ -1,3 +1,4 @@
+import { authService } from "@/services/auth.service";
 import { useUserStore } from "@/stores/useUserStore";
 import { signOut } from "next-auth/react";
 import { FaRightFromBracket } from "react-icons/fa6";
@@ -20,6 +21,7 @@ export default function LogOutButton() {
     }
 
     await signOut();
+    await authService.logout();
     logout();
   };
   return (

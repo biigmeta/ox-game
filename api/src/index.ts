@@ -9,6 +9,16 @@ import cookieParser from "cookie-parser";
 import routes from "./routes";
 import dataCasingMiddleware from "./middlewares/data-casing.middleware";
 import { errorHandler } from "./middlewares/error_handler.middleware";
+import { authIntercept } from "./middlewares/authorization.middleware";
+import { IHeaderUser } from "./types/express";
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: IHeaderUser;
+    }
+  }
+}
 
 dotenv.config();
 const port = process.env.PORT || 3001;
@@ -34,7 +44,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 app.use(express.json());
-app.use("/api", dataCasingMiddleware, routes);
+app.use("/api", dataCasingMiddleware, authIntercept, routes);
 
 // Error Handler (must be last)
 app.use(errorHandler);

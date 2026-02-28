@@ -48,17 +48,21 @@ model Users {
 }
 
 model Histories {
-  id        String    @id @default(uuid())
-  userId    String
-  player    Player
-  result    ScoreType
-  score     Int
+  id          String     @id @default(uuid())
+  userId      String
+  player      Player
+  result      GameResult
+  streak      Int
+  score       Int
+  bonus       Int
+  total       Int
+  description String?
   // --- Timestamps --- //
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  deletedAt   DateTime?
   // --- Relations --- //
-  user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        Users      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum AuthProvider {
@@ -76,9 +80,8 @@ enum Player {
   O
 }
 
-enum ScoreType {
+enum GameResult {
   win
   lose
   draw
-  extra
 }

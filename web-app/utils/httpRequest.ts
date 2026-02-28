@@ -1,3 +1,4 @@
+import { useUserStore } from "@/stores/useUserStore";
 import axios from "axios";
 
 type Headers = {
@@ -32,12 +33,12 @@ export default async function httpRequest<T>({
   // set up header
   const initialHeaders: Headers = { "Content-Type": "application/json" };
   let headers = { ...initialHeaders, "x-app-source": "client" };
-  // const accessToken = useAdminStore.getState().accessToken;
+  const accessToken = useUserStore.getState().accessToken;
 
-  // // set authorization if token exist
-  // if (accessToken) {
-  //   headers = { ...headers, Authorization: `Bearer ${accessToken}` };
-  // }
+  // set authorization if token exist
+  if (accessToken) {
+    headers = { ...headers, Authorization: `Bearer ${accessToken}` };
+  }
 
   // add more header argument
   headers = { ...headers, ...header };

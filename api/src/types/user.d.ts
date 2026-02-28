@@ -3,6 +3,7 @@ export interface IUser {
   firstName: string;
   lastName?: string | null;
   email: string;
+  role: $Enums.UserRole;
   createdAt: Date;
   updatedAt: Date;
 }

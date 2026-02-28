@@ -56,7 +56,7 @@ export default function Board({ player, onGameOver }: BoardProps) {
   const checkGameStatus = (currentSquares: BoardState, lastPlayer: Player) => {
     const winner = checkWinner(currentSquares);
     if (winner) {
-      const status: GameResult = winner === player ? "won" : "lost";
+      const status: GameResult = winner === player ? "win" : "lose";
       setGameStatus(status);
       handleGameOver(status);
       return;

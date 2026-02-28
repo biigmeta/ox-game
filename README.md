@@ -43,7 +43,7 @@ cd ..
 ```bash
 cd web-app
 cp .env.example .env
-# แก้ไขค่าใน .env ให้ถูกต้องถ้าจำเป็น (เช่น API_URL)
+# **สำคัญ:** ให้แก้ไขค่า `GOOGLE_CLIENT_ID` และ `GOOGLE_CLIENT_SECRET` ในไฟล์ .env นี้ ตามค่าที่ได้รับทาง Email
 cd ..
 ```
 
@@ -126,7 +126,18 @@ npm run dev
 
 ---
 
-## 📂 โครงสร้างโปรเจกต์
+## � การเข้าใช้งาน Dashboard (สำหรับ Admin)
+
+หากต้องการดูหน้า Dashboard แสดงคะแนนของผู้เล่น สามารถเข้าใช้งานได้ดังนี้:
+
+1.  เข้าสู่ระบบ (Log In) ด้วยบัญชี Admin:
+    -   **Email:** `admin@example.com`
+    -   **Password:** `admin123`
+2.  เมื่อเข้าสู่ระบบสำเร็จ จะปรากฏเมนู **Dashboard** บน Navigation Bar
+
+---
+
+## �📂 โครงสร้างโปรเจกต์
 
 -   `api/`: Backend Service (Node.js, Express, Prisma)
 -   `web-app/`: Frontend Application (Next.js, React, Tailwind)

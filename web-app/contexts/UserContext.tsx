@@ -71,18 +71,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [status, isHydrated, session]);
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    if (!user && pathName !== "/auth/login" && pathName !== "/auth/register") {
-      router.replace("/auth/login");
-    } else if (
-      user &&
-      (pathName === "/auth/login" || pathName === "/auth/register")
-    ) {
-      router.replace("/");
-    }
-  }, [isHydrated, user, pathName, router]);
-
+  
   return (
     <UserContext.Provider value={{ ...state, ...functionContainer }}>
       {children}

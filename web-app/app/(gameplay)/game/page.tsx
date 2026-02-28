@@ -20,7 +20,7 @@ export default function Page() {
   const [totalScore, setTotalScore] = useState(0);
 
   const handleGameOver = async (result: GameResult) => {
-    console.log("Game Over:", result);
+    
     const response = await historyService.create({
       player: player!,
       result,

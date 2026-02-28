@@ -3,7 +3,6 @@ import Board from "@/components/game/Board";
 import PlayerInfo from "@/components/game/PlayerInfo";
 import SelectPlayer from "@/components/game/SelectPlayer";
 import TopBar from "@/components/game/TopBar";
-import { authService } from "@/services/auth.service";
 import { historyService } from "@/services/history.service";
 import { userService } from "@/services/user.service";
 import { useUserStore } from "@/stores/useUserStore";
@@ -20,7 +19,6 @@ export default function Page() {
   const [totalScore, setTotalScore] = useState(0);
 
   const handleGameOver = async (result: GameResult) => {
-    
     const response = await historyService.create({
       player: player!,
       result,
@@ -48,7 +46,7 @@ export default function Page() {
     const getUserInfo = async () => {
       const response = await userService.me();
       const total =
-        response.histories[response.histories.length - 1]?.total || 0;
+        response?.histories.length > 0 ? response.histories[0]?.total : 0;
       setTotalScore(total);
     };
 

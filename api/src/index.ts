@@ -13,7 +13,12 @@ dotenv.config();
 const port = process.env.PORT || 3001;
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3002",
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(cookieParser()); // Middleware to parse cookies
 app.disable("x-powered-by"); // Disable the X-Powered-By header

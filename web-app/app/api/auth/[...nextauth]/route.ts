@@ -12,8 +12,9 @@ const handler = NextAuth({
   callbacks: {
     // เกิดตอน signin สำเร็จ (มี profile จาก Google)
     async signIn({ user, account, profile }) {
-      // เช่น อนุญาตเฉพาะบางโดเมน
-      // return (user.email ?? "").endsWith("@yourcompany.com");
+    //   console.log("signIn callback triggered with user:", user);
+    //   console.log("signIn callback triggered with account:", account);
+    //   console.log("signIn callback triggered with profile:", profile);
       return true;
     },
 
@@ -29,7 +30,7 @@ const handler = NextAuth({
     async session({ session, token }) {
       session.accessToken = token.accessToken;
       session.sub = token.sub;
-    
+
       return session;
     },
   },

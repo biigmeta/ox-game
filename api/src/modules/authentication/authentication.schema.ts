@@ -5,9 +5,7 @@ export const authRegisterSchema = z.object({
   password: z.string().min(6),
   confirmPassword: z.string().min(6),
   firstName: z.string().min(1),
-  lastName: z.string().min(1),
-  acceptTermsAndConditions: z.boolean(),
-  acceptPrivacyPolicy: z.boolean(),
+  lastName: z.string().min(1).optional().nullable(),
 });
 
 export const authLoginSchema = z.object({
@@ -16,7 +14,8 @@ export const authLoginSchema = z.object({
 });
 
 export const authSocialLoginSchema = z.object({
-  provider: z.enum(["google"]),
-  token: z.string(),
+  sub: z.string(),
   email: z.email(),
+  firstName: z.string().min(1),
+  lastName: z.string().min(1).optional().nullable(),
 });

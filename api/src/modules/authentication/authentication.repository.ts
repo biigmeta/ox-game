@@ -2,11 +2,14 @@ import { Prisma } from "@prisma/client";
 import { DBClient, db } from "~/db/database";
 
 export class AuthenticationRepository {
-  async create(
-    args: Prisma.AuthenticationsCreateArgs,
+  async create<T extends Prisma.AuthenticationsCreateArgs>(
+    args: T,
     database: DBClient = db
   ) {
-    return database.authentications.create(args);
+    return database.authentications.create({
+      ...args,
+      include: { user: true },
+    });
   }
 
   async findMany(

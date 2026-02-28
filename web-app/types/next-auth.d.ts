@@ -1,5 +1,7 @@
 import NextAuth from "next-auth";
 
+export type AuthProvider = "google" ;
+
 declare module "next-auth" {
   interface Session {
     accessToken?: string;

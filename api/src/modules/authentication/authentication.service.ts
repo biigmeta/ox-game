@@ -9,6 +9,7 @@ import {
   authSocialLoginSchema,
 } from "./authentication.schema";
 import { getAccessToken, getRefreshToken } from "~/utils/jwt";
+import { AuthProviderType } from "~/types/auth";
 
 export class AuthenticationService {
   constructor(
@@ -17,57 +18,70 @@ export class AuthenticationService {
   ) {}
 
   async register(data: z.infer<typeof authRegisterSchema>) {
-    const existingUser = await this.userRepository.findByEmail(data.email);
-
-    if (existingUser) {
-      throw new Error("Email already exists");
-    }
-
     return db.$transaction(async (tx) => {
-      const user = await this.userRepository.create(
-        {
-          data: {
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
+      let userId = "";
+      const existingUser = await this.userRepository.findByEmail(
+        data.email,
+        tx
+      );
+
+      if (!existingUser) {
+        const user = await this.userRepository.create(
+          {
+            data: {
+              email: data.email,
+              firstName: data.firstName,
+              lastName: data.lastName,
+            },
           },
+          tx
+        );
+        userId = user.id;
+      } else {
+        userId = existingUser.id;
+      }
+
+      const existingAuth = await this.authenticationRepository.findFirst(
+        {
+          where: { email: data.email, provider: "email" },
         },
         tx
       );
 
-      if (!user) {
-        throw new Error("User not found after creation");
+      if (existingAuth) {
+        throw new Error("Email is already registered");
       }
 
       const hashedPassword = encryptPassword(data.password);
 
-      await this.authenticationRepository.create(
+      const auth = await this.authenticationRepository.create(
         {
           data: {
             provider: "email",
             password: hashedPassword,
             email: data.email,
             subject: data.email,
-            user: { connect: { id: user.id } },
+            user: { connect: { id: userId } },
           },
+          include: { user: true },
         },
         tx
       );
 
       const accessToken = getAccessToken({
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        id: userId,
+        email: auth.user.email,
+        role: auth.user?.role,
       });
 
       const refreshToken = getRefreshToken({
-        id: user.id,
-        email: user.email,
-        role: user.role,
+        id: userId,
+        email: auth.user.email,
+        role: auth.user.role,
       });
 
       return {
-        user,
+        user: auth.user,
         accessToken,
         refreshToken,
       };
@@ -82,7 +96,7 @@ export class AuthenticationService {
       });
 
     if (!authentication) {
-      throw new Error("Invalid email or password");
+      throw new Error("No account found with the provided email");
     }
 
     const isPasswordValid = comparePassword(
@@ -113,7 +127,93 @@ export class AuthenticationService {
     };
   }
 
-  async continueWithSocial(data: z.infer<typeof authSocialLoginSchema>) {}
+  async continueWithSocial(
+    provider: AuthProviderType,
+    data: z.infer<typeof authSocialLoginSchema>
+  ) {
+    return db.$transaction(async (tx) => {
+      let userId = "";
+      const existingUser = await this.userRepository.findByEmail(
+        data.email,
+        tx
+      );
+
+      if (!existingUser) {
+        const user = await this.userRepository.create(
+          {
+            data: {
+              email: data.email,
+              firstName: data.firstName,
+              lastName: data.lastName,
+            },
+          },
+          tx
+        );
+        userId = user.id;
+      } else {
+        userId = existingUser.id;
+      }
+
+      const existingAuth =
+        await this.authenticationRepository.findFirstWithUser(
+          {
+            where: { email: data.email, provider: provider },
+          },
+          tx
+        );
+
+      if (existingAuth) {
+        const accessToken = getAccessToken({
+          id: userId,
+          email: existingAuth.user.email,
+          role: existingAuth.user?.role,
+        });
+
+        const refreshToken = getRefreshToken({
+          id: userId,
+          email: existingAuth.user.email,
+          role: existingAuth.user.role,
+        });
+
+        return {
+          user: existingAuth.user,
+          accessToken,
+          refreshToken,
+        };
+      }
+
+      const creatingAuth = await this.authenticationRepository.create(
+        {
+          data: {
+            provider: provider,
+            email: data.email,
+            subject: data.sub,
+            user: { connect: { id: userId } },
+          },
+          include: { user: true },
+        },
+        tx
+      );
+
+      const accessToken = getAccessToken({
+        id: userId,
+        email: creatingAuth.user.email,
+        role: creatingAuth.user?.role,
+      });
+
+      const refreshToken = getRefreshToken({
+        id: userId,
+        email: creatingAuth.user.email,
+        role: creatingAuth.user.role,
+      });
+
+      return {
+        user: creatingAuth.user,
+        accessToken,
+        refreshToken,
+      };
+    });
+  }
 
   async findAll({ page = 1, limit = 10 }: { page?: number; limit?: number }) {
     const skip = (page - 1) * limit;

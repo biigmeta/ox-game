@@ -9,6 +9,7 @@ export default function PlayerInfo({
   playerName,
   playerScore,
 }: PlayerInfoProps) {
+
   return (
     <div className="w-full flex flex-row items-center justify-between p-8">
       <div>

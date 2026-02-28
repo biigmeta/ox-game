@@ -7,6 +7,7 @@ import httpRequest from "@/utils/httpRequest";
 import { IUser } from "@/types/user";
 import { useUserStore } from "@/stores/useUserStore";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { authService } from "@/services/auth.service";
 
 export type UserContextType = {
   user: IUser | null;
@@ -26,18 +27,43 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
   const pathName = usePathname();
   const router = useRouter();
-  // const user = useUserStore((state) => state.user);
-  // const isHydrated = useUserStore((state) => state.isHydrated);
+  const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
+  const setAccessToken = useUserStore((state) => state.setAccessToken);
+  const setRefreshToken = useUserStore((state) => state.setRefreshToken);
+  const isHydrated = useUserStore((state) => state.isHydrated);
   const [state, dispatch] = useReducer(userReducer, initialState);
+
+  const continueSocial = async (sub: string, email: string, name: string) => {
+
+    console.log("Continuing social login with:", { sub, email, name });
+
+    const response = await authService.continueSocial("google", sub, {
+      email,
+      name,
+    });
+
+    setUser(response.user);
+    setAccessToken(response.accessToken);
+    setRefreshToken(response.refreshToken);
+  };
 
   const functionContainer = {};
 
   useEffect(() => {
-    if (status === "loading") return;
+    if (status === "loading" || user || !isHydrated) return;
+
+    if (status === "authenticated" && session?.sub && session?.user) {
+      continueSocial(
+        session.sub,
+        session.user.email || "",
+        session.user.name || ""
+      );
+    }
 
     console.log("UserContext useEffect triggered with status:", status);
     console.log("UserContext useEffect triggered with session:", session);
-  }, [pathName, router, status]);
+  }, [pathName, router, status,  isHydrated]);
 
   // useEffect(() => {
   //   if (!isHydrated || status === "loading") return;

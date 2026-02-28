@@ -1,13 +1,11 @@
+import { AuthProvider } from "@/types/next-auth";
+import { IUser } from "@/types/user";
 import httpRequest from "@/utils/httpRequest";
 
-export interface User {
-  id: string;
-  email: string;
-  name?: string;
-}
-
 export interface AuthResponse {
-  user: User;
+  user: IUser;
+  accessToken: string;
+  refreshToken: string;
 }
 
 class AuthService {
@@ -64,16 +62,21 @@ class AuthService {
   /*                               CONTINUE SOCIAL                              */
   /* -------------------------------------------------------------------------- */
   async continueSocial(
-    provider: string,
-    accessToken: string
+    provider: AuthProvider,
+    sub: string,
+    user: { email?: string; name?: string; image?: string }
   ): Promise<AuthResponse> {
     const res = await httpRequest({
       method: "post",
-      endpoint: `/auth/continue/${provider}`,
+      endpoint: `/auth/social-login/${provider}`,
       data: {
-        accessToken,
+        sub,
+        email: user.email,
+        firstName: user.name,
       },
     });
+
+    console.log("continueSocial response:", res);
 
     if (res.status === "error") {
       throw new Error(res.message);
@@ -86,7 +89,7 @@ class AuthService {
   /* -------------------------------------------------------------------------- */
   /*                                     ME                                     */
   /* -------------------------------------------------------------------------- */
-  async me(): Promise<User> {
+  async me(): Promise<IUser> {
     const token = localStorage.getItem("accessToken");
 
     if (!token) {

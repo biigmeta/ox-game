@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { AuthenticationService } from "~/modules/authentication/authentication.service";
+import { AuthProviderType } from "~/types/auth";
 import { ok } from "~/utils/http";
 
 export class AuthenticationController {
@@ -9,18 +10,6 @@ export class AuthenticationController {
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const body = req.body;
-
-      if (
-        body.acceptTermsAndConditions === false ||
-        body.acceptPrivacyPolicy === false ||
-        !body.acceptTermsAndConditions ||
-        !body.acceptPrivacyPolicy
-      ) {
-        throw new Error(
-          "You must accept the terms and conditions and privacy policy to register."
-        );
-      }
-
       const data = await this.authenticationService.register(body);
       res.json(ok(data));
     } catch (err) {
@@ -42,8 +31,11 @@ export class AuthenticationController {
     res: Response,
     next: NextFunction
   ) => {
+    const provider = req.params.provider;
+    
     try {
       const data = await this.authenticationService.continueWithSocial(
+        provider as AuthProviderType,
         req.body
       );
       res.json(ok(data));

@@ -11,8 +11,7 @@ interface UserState {
   refreshToken: string | null;
   setAccessToken: (token: string | null) => void;
   setRefreshToken: (token: string | null) => void;
-  update: (user: IUser) => void;
-  login: (accessToken: string, refreshToken: string, user: IUser) => boolean;
+  setUser: (user: IUser | null) => void;
   logout: () => void;
 }
 
@@ -26,14 +25,13 @@ export const useUserStore = create<UserState>()(
       refreshToken: null,
       setAccessToken: (accessToken: string | null) => set({ accessToken }),
       setRefreshToken: (refreshToken: string | null) => set({ refreshToken }),
-      update: (user: IUser) => set({ user }),
-      login: (accessToken: string, refreshToken: string, user: IUser) => {
-        set({ user, accessToken, refreshToken });
-        return true;
-      },
-      logout: () => {
-        set({ user: null, accessToken: null, refreshToken: null });
-      },
+      setUser: (user: IUser | null) => set({ user }),
+      logout: () =>
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+        }),
     }),
     {
       name: "user-storage",

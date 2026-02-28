@@ -12,8 +12,6 @@ export default function SocialOAuth() {
     );
   }
 
-  console.log("Session:", session);
-
   return (
     <div>
       <div>Hi, {session.user?.name}</div>

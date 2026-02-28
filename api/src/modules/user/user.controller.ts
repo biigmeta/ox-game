@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
-import { ok } from "~/utils/http";
+import { ok } from "../../utils/http";
 import { UserService } from "./user.service";
+import { AppError } from "../../middlewares/error_handler.middleware";
 
 export class UserController {
   private userService = new UserService();
@@ -18,6 +19,29 @@ export class UserController {
     try {
       const id = req.params.id;
       const data = await this.userService.findById(id as string);
+
+      if (!data) {
+        throw new AppError("User not found", 404);
+      }
+
+      res.json(ok(data));
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  me = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req?.user?.id;
+      if (!userId) {
+        throw new AppError("User not authenticated", 401);
+      }
+      const data = await this.userService.me(userId);
+
+      if (!data) {
+        throw new AppError("User not found", 404);
+      }
+
       res.json(ok(data));
     } catch (err) {
       next(err);

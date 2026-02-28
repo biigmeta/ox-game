@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { DBClient, db } from "~/db/database";
+import { DBClient, db } from "../../db/database";
 
 export class AuthenticationRepository {
   async create<T extends Prisma.AuthenticationsCreateArgs>(

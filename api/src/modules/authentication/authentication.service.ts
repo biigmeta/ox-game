@@ -1,16 +1,16 @@
 import z from "zod";
-import { db } from "~/db/database";
-import { comparePassword, encryptPassword } from "~/utils/password";
-import { UsersRepository } from "~/modules/user/user.repository";
-import { AuthenticationRepository } from "~/modules/authentication/authentication.repository";
+import { db } from "../../db/database";
+import { comparePassword, encryptPassword } from "../../utils/password";
+import { UsersRepository } from "../../modules/user/user.repository";
+import { AuthenticationRepository } from "../../modules/authentication/authentication.repository";
 import {
   authLoginSchema,
   authRegisterSchema,
   authSocialLoginSchema,
 } from "./authentication.schema";
-import { getAccessToken, getRefreshToken } from "~/utils/jwt";
-import { AuthProviderType } from "~/types/auth";
-import { AppError } from "~/middlewares/error_handler.middleware";
+import { getAccessToken, getRefreshToken } from "../../utils/jwt";
+import { AuthProviderType } from "../../types/auth";
+import { AppError } from "../../middlewares/error_handler.middleware";
 
 export class AuthenticationService {
   constructor(

@@ -2,8 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { decodeAccessToken } from "../utils/jwt";
 import { Jwt } from "jsonwebtoken";
 import { AppError } from "./error_handler.middleware";
-import { AuthProviderType } from "~/types/auth";
-
+import { AuthProviderType } from "../types/auth";
 
 // Middleware to check if the user is authorized
 export const userAuthorization = async (
@@ -42,13 +41,14 @@ export const authIntercept = async (
   next: NextFunction
 ) => {
   const headerAuthorization = req.headers["authorization"];
+
   if (!headerAuthorization) {
     next();
     return;
   }
 
   const token = headerAuthorization.split(" ")[1];
-  const payload = await decodeAccessToken(token);
+  const payload = await decodeAccessToken(token, true);
 
   if (payload instanceof Error) {
     next();

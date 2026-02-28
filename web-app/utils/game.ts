@@ -1,4 +1,4 @@
-import { BoardState, Player } from "@/types/game";
+import { BoardState, Player } from "@/types/history";
 
 export function checkWinner(squares: BoardState): Player | null {
   const lines = [

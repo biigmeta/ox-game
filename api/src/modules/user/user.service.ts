@@ -1,7 +1,4 @@
-import z from "zod";
-
-import { encryptPassword } from "~/utils/password";
-import { db } from "~/db/database";
+import { db } from "../../db/database";
 import { UsersRepository } from "../user/user.repository";
 
 export class UserService {
@@ -41,6 +38,34 @@ export class UserService {
 
   async findById(id: string) {
     return this.userRepository.findFirst({ where: { id: id } });
+  }
+
+  async me(userId: string) {
+    return this.userRepository.findFirst({
+      where: { id: userId },
+      include: {
+        authentications: {
+          select: {
+            provider: true,
+            email: true,
+            subject: true,
+          },
+        },
+        histories: {
+          select: {
+            id: true,
+            result: true,
+            score: true,
+            bonus: true,
+            total: true,
+            streak: true,
+            description: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+        },
+      },
+    });
   }
 
   async softDelete(id: string) {

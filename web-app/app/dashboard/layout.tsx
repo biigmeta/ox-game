@@ -1,4 +1,5 @@
 "use client";
+import DashboardWrapper from "@/components/hoc/DashboardWrapper";
 import { useUserStore } from "@/stores/useUserStore";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
@@ -26,5 +27,9 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [isHydrated, user, router]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <DashboardWrapper>{children}</DashboardWrapper>
+    </>
+  );
 }

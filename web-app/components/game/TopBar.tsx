@@ -6,7 +6,7 @@ interface TopBarProps {
 }
 
 export default function TopBar({ resetPlayer }: TopBarProps) {
-  
+
   const router = useRouter();
   const handleBack = () => {
     router.back();
@@ -21,7 +21,7 @@ export default function TopBar({ resetPlayer }: TopBarProps) {
         Back
       </button>
       <button
-        className="bg-[var(--primary-dark)] text-white px-4 py-1 rounded-md hover:bg-[var(--primary-background)] hover:scale-105 transition-transform duration-300"
+        className="bg-[var(--background)] text-[var(--accent)] px-4 py-1 rounded-md hover:bg-[var(--primary-dark)] hover:text-[var(--background)] hover:scale-105 transition-transform duration-300"
         onClick={resetPlayer}
       >
         Change Player

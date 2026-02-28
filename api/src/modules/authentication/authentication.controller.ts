@@ -1,9 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { AppError } from "~/middlewares/error_handler.middleware";
-import { AuthenticationService } from "~/modules/authentication/authentication.service";
-import { AuthProviderType } from "~/types/auth";
-import { ok } from "~/utils/http";
-
+import { AppError } from "../../middlewares/error_handler.middleware";
+import { AuthenticationService } from "../../modules/authentication/authentication.service";
+import { AuthProviderType } from "../../types/auth";
+import { ok } from "../../utils/http";
 
 export class AuthenticationController {
   private authenticationService = new AuthenticationService();

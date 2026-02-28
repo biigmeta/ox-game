@@ -1,3 +1,4 @@
+import { useUserStore } from "@/stores/useUserStore";
 import { AuthProvider } from "@/types/next-auth";
 import { IUser } from "@/types/user";
 import httpRequest from "@/utils/httpRequest";
@@ -93,32 +94,6 @@ class AuthService {
         sub,
         email: user.email,
         firstName: user.name,
-      },
-    });
-
-    if (res.status === "error") {
-      throw new Error(res.message);
-    }
-
-    localStorage.setItem("accessToken", res.data.accessToken);
-    return res.data;
-  }
-
-  /* -------------------------------------------------------------------------- */
-  /*                                     ME                                     */
-  /* -------------------------------------------------------------------------- */
-  async me(): Promise<IUser> {
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      throw new Error("No token");
-    }
-
-    const res = await httpRequest({
-      method: "get",
-      endpoint: "/auth/me",
-      header: {
-        Authorization: `Bearer ${token}`,
       },
     });
 

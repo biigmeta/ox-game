@@ -1,8 +1,8 @@
-import { AnyZodObject, ZodSchema } from "zod";
+import { ZodType } from "zod";
 import { Request, Response, NextFunction } from "express";
 
 export const zodValidate =
-  (schema: ZodSchema, where: "body" | "query" | "params" = "body") =>
+  (schema: ZodType, where: "body" | "query" | "params" = "body") =>
   (req: Request, res: Response, next: NextFunction) => {
     const parsed = schema.safeParse(req[where]);
     if (!parsed.success) {

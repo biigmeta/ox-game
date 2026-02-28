@@ -1,4 +1,4 @@
-import { BoardState, GameResult, Player } from "@/types/game";
+import { BoardState, GameResult, Player } from "@/types/history";
 import { getBotMove } from "@/utils/bot";
 import { checkWinner, isDraw, isValidMove } from "@/utils/game";
 import clsx from "clsx";

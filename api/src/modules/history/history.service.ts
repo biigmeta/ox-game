@@ -1,4 +1,4 @@
-import { db } from "~/db/database";
+import { db } from "../../db/database";
 import { HistoriesRepository } from "../history/history.repository";
 import z from "zod";
 import { createHistoriesSchema } from "./history.schema";
@@ -63,16 +63,93 @@ export class HistorieService {
     });
   }
 
-  async findAll({ page = 1, limit = 10 }: { page?: number; limit?: number }) {
+  async findAll({
+    page = 1,
+    limit = 10,
+    orderBy = { createdAt: "desc" },
+    searchTerm,
+  }: {
+    page?: number;
+    limit?: number;
+    orderBy?: Record<string, "asc" | "desc">;
+    searchTerm?: string;
+  }) {
     const skip = (page - 1) * limit;
 
     return db.$transaction(async (tx) => {
-      const [data, total] = await Promise.all([
+      const [data, count, total] = await Promise.all([
         this.historieRepository.findMany(
           {
             skip,
             take: limit,
-            orderBy: { createdAt: "desc" },
+            orderBy: orderBy,
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              },
+            },
+            where: searchTerm
+              ? {
+                  user: {
+                    OR: [
+                      {
+                        firstName: {
+                          contains: searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                      {
+                        lastName: {
+                          contains: searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                      {
+                        email: {
+                          contains: searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                    ],
+                  },
+                }
+              : undefined,
+          },
+          tx
+        ),
+        this.historieRepository.count(
+          {
+            where: searchTerm
+              ? {
+                  user: {
+                    OR: [
+                      {
+                        firstName: {
+                          contains: searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                      {
+                        lastName: {
+                          contains: searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                      {
+                        email: {
+                          contains: searchTerm,
+                          mode: "insensitive",
+                        },
+                      },
+                    ],
+                  },
+                }
+              : undefined,
           },
           tx
         ),
@@ -86,6 +163,7 @@ export class HistorieService {
         pagination: {
           page,
           limit,
+          count,
           total,
           totalPages: Math.ceil(total / limit),
         },
@@ -99,6 +177,41 @@ export class HistorieService {
 
   async findByUserId(userId: string) {
     return this.historieRepository.findMany({ where: { userId: userId } });
+  }
+
+  async summary() {
+    return db.$transaction(async (tx) => {
+      const totalGames = await this.historieRepository.count({}, tx);
+      const totalWins = await this.historieRepository.count(
+        { where: { result: "win" } },
+        tx
+      );
+      const totalLosses = await this.historieRepository.count(
+        { where: { result: "lose" } },
+        tx
+      );
+      const totalDraws = await this.historieRepository.count(
+        { where: { result: "draw" } },
+        tx
+      );
+      const highestTotal = await this.historieRepository.findFirst(
+        {
+          orderBy: { total: "desc" },
+          select: { total: true },
+        },
+        tx
+      );
+      const winRate = totalGames > 0 ? (totalWins / totalGames) * 100 : 0;
+
+      return {
+        totalGames,
+        totalWins,
+        totalLosses,
+        totalDraws,
+        highestTotal: highestTotal?.total || 0,
+        winRate: parseFloat(winRate.toFixed(2)),
+      };
+    });
   }
 
   async softDelete(id: string) {

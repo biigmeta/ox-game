@@ -3,7 +3,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
-// import dataCasingMiddleware from "~/src/middlewares/data-casing.middleware";
 import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import routes from "./routes";

@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { ok } from "~/utils/http";
+import { ok } from "../../utils/http";
 import { HistorieService } from "./history.service";
 
 export class HistorieController {
@@ -16,14 +16,28 @@ export class HistorieController {
 
   findAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.historieService.findAll(req.query);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const orderBy = req.query.orderBy as string;
+      const direction = req.query.direction === "asc" ? "asc" : "desc";
+      const searchTerm = req.query.search as string | undefined;
+      const data = await this.historieService.findAll({
+        page,
+        limit,
+        orderBy: { [orderBy || "createdAt"]: direction },
+        searchTerm,
+      });
       res.json(ok(data));
     } catch (err) {
       next(err);
     }
-  }
+  };
 
-  findByHistorieId = async (req: Request, res: Response, next: NextFunction) => {
+  findByHistorieId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const id = req.params.id;
       const data = await this.historieService.findById(id as string);
@@ -31,7 +45,7 @@ export class HistorieController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 
   findByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -41,7 +55,16 @@ export class HistorieController {
     } catch (err) {
       next(err);
     }
-  }
+  };
+
+  summary = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this.historieService.summary();
+      res.json(ok(data));
+    } catch (err) {
+      next(err);
+    }
+  };
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,5 +77,5 @@ export class HistorieController {
     } catch (err) {
       next(err);
     }
-  }
+  };
 }

@@ -5,8 +5,9 @@ import SelectPlayer from "@/components/game/SelectPlayer";
 import TopBar from "@/components/game/TopBar";
 import { authService } from "@/services/auth.service";
 import { historyService } from "@/services/history.service";
+import { userService } from "@/services/user.service";
 import { useUserStore } from "@/stores/useUserStore";
-import { GameResult, Player } from "@/types/game";
+import { GameResult, Player } from "@/types/history";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -36,11 +37,6 @@ export default function Page() {
     setPlayer(null);
   };
 
-  const checkUserInfo = async () => {
-    const response = await authService.me();
-    console.log("User info response:", response);
-  };
-
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -48,16 +44,24 @@ export default function Page() {
       router.replace("/auth/login");
       return;
     }
+
+    const getUserInfo = async () => {
+      const response = await userService.me();
+      const total =
+        response.histories[response.histories.length - 1]?.total || 0;
+      setTotalScore(total);
+    };
+
+    getUserInfo();
   }, [isHydrated, user, router]);
 
   return (
     <div className="w-full  h-full flex flex-col bg-[var(--card)] rounded-md shadow-md">
       <TopBar resetPlayer={resetPlayer} />
       <PlayerInfo
-        playerName={`${user?.firstName} ${user?.lastName}`}
+        playerName={`${user?.firstName} ${user?.lastName || ""}`}
         playerScore={totalScore}
       />
-      <button onClick={checkUserInfo}>Check</button>
       <div className="flex flex-col items-center justify-center grow relative">
         {player ? (
           <Board player={player} onGameOver={handleGameOver} />

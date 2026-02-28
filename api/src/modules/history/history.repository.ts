@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { DBClient, db } from "~/db/database";
+import { DBClient, db } from "../../db/database";
 
 export class HistoriesRepository {
   async create(args: Prisma.HistoriesCreateArgs, database: DBClient = db) {

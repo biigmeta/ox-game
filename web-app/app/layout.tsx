@@ -22,9 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${notoSansThai.variable}`}>
-        <Provider>
-          <Wrapper>{children}</Wrapper>
-        </Provider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );

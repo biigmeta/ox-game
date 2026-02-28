@@ -1,4 +1,4 @@
-import { BoardState, Player } from "@/types/game";
+import { BoardState, Player } from "@/types/history";
 import { isValidMove } from "./game";
 
 export function getBotMove(

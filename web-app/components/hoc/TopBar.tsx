@@ -1,8 +1,8 @@
-'use client';
-import Link from "next/link";
-import Authentication from "./Authentication";
-import { FaMicrosoft } from "react-icons/fa6";
+"use client";
 import { useUserStore } from "@/stores/useUserStore";
+import Link from "next/link";
+import { FaMicrosoft } from "react-icons/fa6";
+import Authentication from "./Authentication";
 export default function TopBar() {
   const user = useUserStore((state) => state.user);
   return (
@@ -12,11 +12,11 @@ export default function TopBar() {
         <span className="hidden md:block">Tic Tac Toe</span>
       </Link>
 
-      <div className="flex flex-row items-center gap-8">
+      <div className="flex flex-row items-center gap-8 md:gap-12">
         {user && user.role === "admin" && (
           <Link
             href="/dashboard"
-            className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-[var(--primary)] hover:text-[var(--primary-dark)] hover:underline transition-colors duration-300"
           >
             Dashboard
           </Link>

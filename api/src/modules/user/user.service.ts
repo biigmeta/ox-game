@@ -6,16 +6,101 @@ export class UserService {
     private userRepository: UsersRepository = new UsersRepository()
   ) {}
 
-  async findAll({ page = 1, limit = 10 }: { page?: number; limit?: number }) {
+  async findAll({
+    page = 1,
+    limit = 10,
+    orderBy = { createdAt: "desc" },
+    searchTerm,
+  }: {
+    page?: number;
+    limit?: number;
+    orderBy?: Record<string, "asc" | "desc">;
+    searchTerm?: string;
+  }) {
     const skip = (page - 1) * limit;
 
     return db.$transaction(async (tx) => {
-      const [data, total] = await Promise.all([
+      const [data, count, total] = await Promise.all([
         this.userRepository.findMany(
           {
             skip,
             take: limit,
             orderBy: { createdAt: "desc" },
+            include: {
+              _count: {
+                select: { histories: true },
+              },
+              histories: {
+                select: {
+                  id: true,
+                  bonus: true,
+                  player: true,
+                  result: true,
+                  score: true,
+                  total: true,
+                },
+                take: 1,
+                orderBy: { createdAt: "desc" },
+              },
+              authentications: {
+                select: {
+                  provider: true,
+                },
+              },
+            },
+            where: searchTerm
+              ? {
+                  OR: [
+                    {
+                      firstName: {
+                        contains: searchTerm,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      lastName: {
+                        contains: searchTerm,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      email: {
+                        contains: searchTerm,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                }
+              : undefined,
+          },
+          tx
+        ),
+        this.userRepository.count(
+          {
+            where: searchTerm
+              ? {
+                  OR: [
+                    {
+                      firstName: {
+                        contains: searchTerm,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      lastName: {
+                        contains: searchTerm,
+                        mode: "insensitive",
+                      },
+                    },
+                    {
+                      email: {
+                        contains: searchTerm,
+                        mode: "insensitive",
+                      },
+                    },
+                  ],
+                }
+              : undefined,
           },
           tx
         ),
@@ -29,6 +114,7 @@ export class UserService {
         pagination: {
           page,
           limit,
+          count,
           total,
           totalPages: Math.ceil(total / limit),
         },

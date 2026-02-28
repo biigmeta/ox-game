@@ -1,70 +1,59 @@
 "use client";
-import HistoryTable from "@/components/dahsboard/HistoryTable";
-import InfoCard from "@/components/dahsboard/InfoCard";
-import UserTable from "@/components/dahsboard/UserTable";
+
 import { historyService } from "@/services/history.service";
-import { IHistorySummary } from "@/types/history";
+import { IHistory } from "@/types/history";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-export default function Page() {
-  const [mode, setMode] = useState<"history" | "users">("users");
 
-  const [summary, setSummary] = useState<IHistorySummary>({
-    totalGames: 0,
-    totalWins: 0,
-    totalLosses: 0,
-    totalDraws: 0,
-    highestTotal: 0,
-    winRate: 0,
-  });
+export default function HistoryTable() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [orderBy, setOrderBy] = useState("createdAt");
+  const [direction, setDirection] = useState<"asc" | "desc">("desc");
+  const [count, setCount] = useState(0); // history items count
+  const [histories, setHistories] = useState<IHistory[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleChangeMode = (newMode: "history" | "users") => {
-    setMode(newMode);
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (value === "") {
+      handleClearSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setPage(1);
   };
 
   useEffect(() => {
-    const fetchSummary = async () => {
-      const response = await historyService.getSummary();
-      setSummary(response);
+    const fetchHistory = async () => {
+      const response = await historyService.getAll({
+        page,
+        limit,
+        orderBy: orderBy,
+        direction: direction,
+        search: searchTerm,
+      });
+
+      setHistories(response.data);
+      setCount(response.pagination.count);
+      setTotalPages(response.pagination.totalPages);
     };
-    fetchSummary();
-  }, [mode]);
+    if (searchTerm.length > 0 && searchTerm.length < 3) return;
+    fetchHistory();
+  }, [page, limit, orderBy, direction, searchTerm]);
 
   return (
-    <div className="w-full h-full bg-[var(--card)] rounded-md shadow-md p-8 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold">Dashboard</h1>
-        <div className="flex gap-4 bg-gray-200 rounded-md p-2">
-          <button
-            className={clsx("px-2 py-1 rounded", {
-              "bg-[var(--accent)] text-white": mode === "users",
-              "bg-gray-200": mode !== "users",
-            })}
-            onClick={() => handleChangeMode("users")}
-          >
-            Users
-          </button>
-          <button
-            className={clsx("px-2 py-1 rounded", {
-              "bg-[var(--accent)] text-white": mode === "history",
-              "bg-gray-200": mode !== "history",
-            })}
-            onClick={() => handleChangeMode("history")}
-          >
-            History
-          </button>
-        </div>
-      </div>
-      <div className="grid grid-cols-6 gap-4">
-        <InfoCard title="Total Games" value={summary.totalGames} />
-        <InfoCard title="Highest Total" value={summary.highestTotal} />
-        <InfoCard title="Win Rate" value={summary.winRate} suffix="%" />
-        <InfoCard title="Total Wins" value={summary.totalWins} />
-        <InfoCard title="Total Losses" value={summary.totalLosses} />
-        <InfoCard title="Total Draws" value={summary.totalDraws} />
-      </div>
-      {mode === "history" ? <HistoryTable /> : <UserTable />}
-      {/* <div className="flex flex-col items-start justify-center gap-4 grow">
+    <>
+      <div className="flex flex-col items-start justify-center gap-4 grow">
         <div className="w-full flex flex-row items-end justify-between">
           <p>
             {count} {`Item(s)`}
@@ -81,7 +70,6 @@ export default function Page() {
               value={searchTerm}
               onChange={handleChange}
             />
-           
           </div>
         </div>
         <div className="w-full grow overflow-auto">
@@ -163,7 +151,7 @@ export default function Page() {
             Next
           </button>
         </div>
-      </div> */}
-    </div>
+      </div>
+    </>
   );
 }

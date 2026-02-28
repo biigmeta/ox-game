@@ -5,9 +5,9 @@ const router = Router();
 
 const userController = new UserController();
 
-router.get("/", userController.findAll);
+router.get("/", userAuthorization, userController.findAll);
 router.get("/me", userAuthorization, userController.me);
-router.get("/:id", userController.findByUserId);
-router.delete("/:id", userController.delete);
+router.get("/:id", userAuthorization, userController.findByUserId);
+router.delete("/:id", userAuthorization, userController.delete);
 
 export default router;

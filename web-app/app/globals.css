@@ -46,6 +46,10 @@ body {
   font-family: "Noto Sans Thai", sans-serif;
 }
 
-.swal2-confirm{
+.swal2-confirm {
   background-color: var(--primary) !important;
+}
+
+button {
+  cursor: pointer !important;
 }

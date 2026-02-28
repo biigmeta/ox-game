@@ -11,4 +11,7 @@ export interface IUser {
   updatedAt: string;
   histories: IHistory[];
   authentications: IAuthentication[];
+  _count: {
+    histories: number;
+  };
 }

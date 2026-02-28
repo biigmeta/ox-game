@@ -12,8 +12,12 @@ router.post(
   authenticationController.continueWithSocial
 );
 router.get("/me", userAuthorization, authenticationController.me);
-router.get("/user/:id", authenticationController.findByUserId);
-router.get("/", authenticationController.findAll);
-router.delete("/:id", authenticationController.delete);
+router.get(
+  "/user/:id",
+  userAuthorization,
+  authenticationController.findByUserId
+);
+router.get("/", userAuthorization, authenticationController.findAll);
+router.delete("/:id", userAuthorization, authenticationController.delete);
 
 export default router;

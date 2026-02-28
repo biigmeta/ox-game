@@ -8,7 +8,17 @@ export class UserController {
 
   findAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.userService.findAll(req.query);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      const orderBy = req.query.orderBy as string;
+      const direction = req.query.direction === "asc" ? "asc" : "desc";
+      const searchTerm = req.query.search as string | undefined;
+      const data = await this.userService.findAll({
+        page,
+        limit,
+        orderBy: { [orderBy || "createdAt"]: direction },
+        searchTerm,
+      });
       res.json(ok(data));
     } catch (err) {
       next(err);

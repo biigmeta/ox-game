@@ -6,6 +6,10 @@ import { FaEyeSlash } from "react-icons/fa6";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Divider from "../general/Divider";
 import SocialOAuth from "./SocialOAuth";
+import { authService } from "@/services/auth.service";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/stores/useUserStore";
 
 type Inputs = {
   email: string;
@@ -19,12 +23,35 @@ export default function LogInCard() {
     formState: { errors },
   } = useForm<Inputs>();
 
+  const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
+  const setAccessToken = useUserStore((state) => state.setAccessToken);
+  const setRefreshToken = useUserStore((state) => state.setRefreshToken);
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      const response = await authService.login(data.email, data.password);
+      if (!response) return;
+
+      setUser(response.user);
+      setAccessToken(response.accessToken);
+      setRefreshToken(response.refreshToken);
+      router.push("/");
+    } catch (error) {
+      if (error instanceof Error) {
+        Swal.fire({
+          title: "Login Failed",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  };
 
   return (
     <div className="w-full max-w-md p-6 bg-[var(--card)] rounded-lg shadow-md">
@@ -37,7 +64,7 @@ export default function LogInCard() {
           <input
             type="email"
             {...register("email", { required: true })}
-            className="w-full px-2 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+            className="w-full px-2 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
             placeholder="Enter your email"
           />
           {errors.email && (
@@ -54,7 +81,7 @@ export default function LogInCard() {
             <input
               type={showPassword ? "text" : "password"}
               {...register("password", { required: true })}
-              className="w-full pl-2 pr-12 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+              className="w-full pl-2 pr-12 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
               placeholder="Enter your password"
             />
             <button

@@ -15,6 +15,7 @@ class AuthService {
   async register(
     email: string,
     password: string,
+    confirmPassword: string,
     firstName: string,
     lastName: string
   ): Promise<AuthResponse> {
@@ -24,6 +25,7 @@ class AuthService {
       data: {
         email,
         password,
+        confirmPassword,
         firstName,
         lastName,
       },
@@ -41,21 +43,39 @@ class AuthService {
   /*                                    LOGIN                                   */
   /* -------------------------------------------------------------------------- */
   async login(email: string, password: string): Promise<AuthResponse> {
-    const res = await httpRequest({
-      method: "post",
-      endpoint: "/auth/login",
-      data: {
-        email,
-        password,
-      },
-    });
+    try {
+      const res = await httpRequest({
+        method: "post",
+        endpoint: "/auth/login",
+        data: {
+          email,
+          password,
+        },
+      });
 
-    if (res.status === "error") {
-      throw new Error(res.message);
+      if (res.status === "error") {
+        if (
+          res.error?.response?.status === 401 ||
+          res.error?.response?.status === 400
+        ) {
+          throw new Error("Invalid email or password");
+        }
+        if (res.error?.response?.status === 404) {
+          throw new Error("User not found");
+        }
+
+        if (res.error?.response?.status === 500) {
+          throw new Error(res.error.response.data?.message || "Login failed");
+        }
+
+        throw new Error(res.message);
+      }
+
+      localStorage.setItem("accessToken", res.data.accessToken);
+      return res.data;
+    } catch (error) {
+      throw error;
     }
-
-    localStorage.setItem("accessToken", res.data.accessToken);
-    return res.data;
   }
 
   /* -------------------------------------------------------------------------- */
@@ -75,8 +95,6 @@ class AuthService {
         firstName: user.name,
       },
     });
-
-    console.log("continueSocial response:", res);
 
     if (res.status === "error") {
       throw new Error(res.message);

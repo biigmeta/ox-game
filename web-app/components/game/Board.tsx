@@ -130,18 +130,9 @@ function GameStatus({
   player: Player;
   currentTurn: Player;
 }) {
-  // `Next player: ${
-  //               isPlayerMove
-  //                 ? `You (${player})`
-  //                 : `Bot (${player === "X" ? "O" : "X"})`
-  //             }`
-  //           : gameStatus === "won"
-  //           ? "You Won!"
-  //           : gameStatus === "lost"
-  //           ? "Game Over (You Lost)"
-  //           : "Draw!"
+
   return (
-    <div className="w-full text-center py-4 px-8 text-lg font-bold bg-[var(--secondary-light)] rounded-lg shadow-md">
+    <div className="w-full text-center py-4 px-8 text-lg font-bold bg-[var(--secondary-light)] dark:bg-[var(--secondary-dark)] rounded-lg shadow-md">
       {player === currentTurn ? (
         <p>
           {`Your Turn`}

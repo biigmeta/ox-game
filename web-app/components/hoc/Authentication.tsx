@@ -4,27 +4,28 @@ import Link from "next/link";
 import { FaRightFromBracket } from "react-icons/fa6";
 import { signOut } from "next-auth/react";
 import Swal from "sweetalert2";
+import LogOutButton from "../general/LogOutButton";
 
 export default function Authentication() {
   const user = useUserStore((state) => state.user);
-  const logout = useUserStore((state) => state.logout);
+  // const logout = useUserStore((state) => state.logout);
 
-  const handleLogout = async () => {
-    const result = await Swal.fire({
-      title: "Are you sure you want to logout?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, logout",
-      cancelButtonText: "No, stay logged in",
-    });
+  // const handleLogout = async () => {
+  //   const result = await Swal.fire({
+  //     title: "Are you sure you want to logout?",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonText: "Yes, logout",
+  //     cancelButtonText: "No, stay logged in",
+  //   });
 
-    if (!result.isConfirmed) {
-      return;
-    }
+  //   if (!result.isConfirmed) {
+  //     return;
+  //   }
 
-    await signOut();
-    logout();
-  };
+  //   await signOut();
+  //   logout();
+  // };
   return (
     <div>
       {user ? (
@@ -32,12 +33,13 @@ export default function Authentication() {
           <span>
             {user.firstName} {user.lastName}
           </span>
-          <button
+          <LogOutButton />
+          {/* <button
             onClick={handleLogout}
             className="bg-[var(--error)] text-[var(--background)] px-2 py-1 rounded-md hover:bg-[var(--background)] border hover:text-[var(--error)] hover:scale-105 transition-transform duration-300"
           >
             <FaRightFromBracket />
-          </button>
+          </button> */}
         </div>
       ) : (
         <div className="flex flex-row gap-4">

@@ -11,14 +11,14 @@ export default function SelectPlayer({ onSelect }: SelectPlayerProps) {
       <div className="flex space-x-4 md:space-x-12">
         <button
           className="w-[120px] h-[120px] bg-[var(--background)] text-[var(--primary)] rounded-md shadow-md text-6xl font-bold flex items-center justify-center 
-          hover:bg-[var(--accent)] hover:text-[var(--background)] duration-300"
+          hover:bg-[var(--accent)] hover:text-[var(--background)] duration-300 dark:shadow-white/20"
           onClick={() => onSelect("O")}
         >
           O
         </button>
         <button
           className="w-[120px] h-[120px] bg-[var(--background)] text-[var(--accent)] rounded-md shadow-md text-6xl font-bold flex items-center justify-center 
-          hover:bg-[var(--primary)] hover:text-[var(--background)] duration-300"
+          hover:bg-[var(--primary)] hover:text-[var(--background)] duration-300 dark:shadow-white/20"
           onClick={() => onSelect("X")}
         >
           X

@@ -8,6 +8,7 @@ import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import routes from "./routes";
 import dataCasingMiddleware from "./middlewares/data-casing.middleware";
+import { errorHandler } from "./middlewares/error_handler.middleware";
 
 dotenv.config();
 const port = process.env.PORT || 3001;
@@ -36,7 +37,7 @@ app.use(express.json());
 app.use("/api", dataCasingMiddleware, routes);
 
 // Error Handler (must be last)
-// app.use(errorHandler);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

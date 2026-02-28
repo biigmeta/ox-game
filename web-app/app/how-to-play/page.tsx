@@ -1,6 +1,4 @@
 import BackToHomeButton from "@/components/general/BackToHomeButton";
-import Link from "next/link";
-import React from "react";
 
 export default function Page() {
   return (

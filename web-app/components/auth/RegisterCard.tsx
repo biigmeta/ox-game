@@ -6,6 +6,10 @@ import { FaEye } from "react-icons/fa6";
 import { FaEyeSlash } from "react-icons/fa6";
 import Divider from "../general/Divider";
 import SocialOAuth from "./SocialOAuth";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/auth.service";
+import Swal from "sweetalert2";
+import { useUserStore } from "@/stores/useUserStore";
 
 type Inputs = {
   firstName: string;
@@ -21,13 +25,43 @@ export default function RegisterCard() {
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
+  const router = useRouter();
 
+  const setUser = useUserStore((state) => state.setUser);
+  const setAccessToken = useUserStore((state) => state.setAccessToken);
+  const setRefreshToken = useUserStore((state) => state.setRefreshToken);
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    try {
+      const response = await authService.register(
+        data.email,
+        data.password,
+        data.confirmPassword,
+        data.firstName,
+        data.lastName
+      );
+
+      if (!response) return;
+
+      setUser(response.user);
+      setAccessToken(response.accessToken);
+      setRefreshToken(response.refreshToken);
+      router.push("/");
+    } catch (error) {
+      if (error instanceof Error) {
+        Swal.fire({
+          title: "Registration Failed",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    }
+  };
 
   return (
     <div className="w-full max-w-md p-6 bg-[var(--card)] rounded-lg shadow-md">
@@ -45,7 +79,7 @@ export default function RegisterCard() {
               id="firstName"
               type="text"
               {...register("firstName", { required: true })}
-              className="w-full px-2 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+              className="w-full px-2 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
             />
             {errors.firstName && (
               <label className="text-[var(--error)] w-full">
@@ -64,7 +98,7 @@ export default function RegisterCard() {
               id="lastName"
               type="text"
               {...register("lastName", { required: true })}
-              className="w-full px-2 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+              className="w-full px-2 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
             />
             {errors.lastName && (
               <label className="text-[var(--error)] w-full">
@@ -81,7 +115,7 @@ export default function RegisterCard() {
             id="email"
             type="email"
             {...register("email", { required: true })}
-            className="w-full px-2 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+            className="w-full px-2 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
           />
           {errors.email && (
             <label className="text-[var(--error)] w-full">
@@ -98,7 +132,7 @@ export default function RegisterCard() {
               id="password"
               type={showPassword ? "text" : "password"}
               {...register("password", { required: true })}
-              className="w-full pl-2 pr-12 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+              className="w-full pl-2 pr-12 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
             />
             <button
               type="button"
@@ -131,7 +165,7 @@ export default function RegisterCard() {
               id="confirmPassword"
               type={showPassword ? "text" : "password"}
               {...register("confirmPassword", { required: true })}
-              className="w-full pl-2 pr-12 py-2 border rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
+              className="w-full pl-2 pr-12 py-2 border border-[var(--border)] rounded-md focus:outline-none focus:ring focus:ring-[var(--primary)]"
             />
             <button
               type="button"

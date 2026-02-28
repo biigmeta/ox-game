@@ -10,6 +10,7 @@ import {
 } from "./authentication.schema";
 import { getAccessToken, getRefreshToken } from "~/utils/jwt";
 import { AuthProviderType } from "~/types/auth";
+import { AppError } from "~/middlewares/error_handler.middleware";
 
 export class AuthenticationService {
   constructor(
@@ -49,7 +50,7 @@ export class AuthenticationService {
       );
 
       if (existingAuth) {
-        throw new Error("Email is already registered");
+        throw new AppError("Email is already registered", 400);
       }
 
       const hashedPassword = encryptPassword(data.password);
@@ -96,7 +97,7 @@ export class AuthenticationService {
       });
 
     if (!authentication) {
-      throw new Error("No account found with the provided email");
+      throw new AppError("No account found with the provided email", 404);
     }
 
     const isPasswordValid = comparePassword(
@@ -105,7 +106,7 @@ export class AuthenticationService {
     );
 
     if (!isPasswordValid) {
-      throw new Error("Invalid email or password");
+      throw new AppError("Invalid email or password", 400);
     }
 
     const accessToken = getAccessToken({
@@ -231,7 +232,7 @@ export class AuthenticationService {
         this.authenticationRepository.count({}, tx),
       ]);
 
-      if (!data) throw new Error("No authentications found");
+      if (!data) throw new AppError("No authentications found", 404);
 
       return {
         data,

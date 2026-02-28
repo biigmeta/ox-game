@@ -34,14 +34,21 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const isHydrated = useUserStore((state) => state.isHydrated);
   const [state, dispatch] = useReducer(userReducer, initialState);
 
-  const continueSocial = async (sub: string, email: string, name: string) => {
-
-    console.log("Continuing social login with:", { sub, email, name });
-
+  const continueSocial = async ({
+    sub,
+    email,
+    name,
+  }: {
+    sub: string;
+    email: string;
+    name: string;
+  }) => {
     const response = await authService.continueSocial("google", sub, {
       email,
       name,
     });
+
+    if (!response) return;
 
     setUser(response.user);
     setAccessToken(response.accessToken);
@@ -54,28 +61,27 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     if (status === "loading" || user || !isHydrated) return;
 
     if (status === "authenticated" && session?.sub && session?.user) {
-      continueSocial(
-        session.sub,
-        session.user.email || "",
-        session.user.name || ""
-      );
-    }
+      continueSocial({
+        sub: session.sub,
+        email: session.user.email || "",
+        name: session.user.name || "",
+      });
 
-    console.log("UserContext useEffect triggered with status:", status);
-    console.log("UserContext useEffect triggered with session:", session);
-  }, [pathName, router, status,  isHydrated]);
+      return;
+    }
+  }, [status, isHydrated, session]);
 
   // useEffect(() => {
-  //   if (!isHydrated || status === "loading") return;
-
-  //   console.log("UserContext useEffect triggered with status:", status);
-  //   console.log("UserContext useEffect triggered with session:", session);
-  //   console.log("UserContext useEffect triggered with user:", user);
-
-  //   // if (!user && pathName !== "/auth/login") {
-  //   //   router.replace("/auth/login");
-  //   // }
-  // }, [isHydrated, user, pathName, router, status]);
+  //   if (!isHydrated) return;
+  //   if (!user && pathName !== "/auth/login" && pathName !== "/auth/register") {
+  //     router.replace("/auth/login");
+  //   } else if (
+  //     user &&
+  //     (pathName === "/auth/login" || pathName === "/auth/register")
+  //   ) {
+  //     router.replace("/");
+  //   }
+  // }, [isHydrated, user, pathName, router]);
 
   return (
     <UserContext.Provider value={{ ...state, ...functionContainer }}>
